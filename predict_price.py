@@ -4,6 +4,7 @@ def load_model():
         b0, b1 = map(float, file.read().split(','))
     return b0, b1
 
+# calculates the predicted price using the linear regression equation: price = b0 + b1 * mileage.
 def predict_price(mileage, b0, b1):
     # Predict the price
     price = b0 + b1 * mileage
