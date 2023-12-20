@@ -66,19 +66,6 @@ def plot_cost_history(cost_history):
     plt.ylabel('Cost')
     plt.title('Cost History')
     plt.show()
-
-# # R-squared represents the proportion of the dependent variable's variance 
-# # that is explained by the independent variable(s)
-# def plot_coefficient_of_determination(r_squared):
-#     labels = ['Explained Variance (R-squared)', 'Unexplained Variance']
-#     values = [r_squared, 1 - r_squared]
-#     colors = ['lightcoral', 'lightskyblue']
-
-#     plt.bar(labels, values, color=colors)
-#     plt.ylabel('Proportion')
-#     plt.title('Coefficient of Determination (R-squared)')
-#     plt.ylim(0, 1)  # Set y-axis limits to represent proportions
-#     plt.show()
     
 def load_data(file_name):
    dataset = []
@@ -142,8 +129,8 @@ def save_model(final_theta, mean_X, std_X, mean_Y, std_Y, file_name):
 
 def save_predictions(Y_vector, predictions):
     with open("predictions.txt", 'w') as file:
-        file.write(f"{vector}\n")
-        file.write(f"{predictions}\n")
+        np.savetxt(file, np.column_stack((Y_vector, predictions)))
+
 
 def main():
    try:
@@ -158,8 +145,8 @@ def main():
        # Plotting
        plot_results(X_vector, Y_vector, predictions)
        plot_cost_history(cost_history)
-       plot_coefficient_of_determination(rounded_r_squared)
-       print(f"Coefficient of determination: {rounded_r_squared}")
+       # plot_coefficient_of_determination(rounded_r_squared)
+       # print(f"Coefficient of determination: {rounded_r_squared}")
        
        # Save theta + scaled var in txt to be retrieved by the predict program
        save_model(final_theta, mean_X, std_X, mean_Y, std_Y, 'linear_regression_model.txt')

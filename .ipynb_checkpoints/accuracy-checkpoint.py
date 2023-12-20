@@ -2,10 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def load_predictions(file_path):
-   data = np.loadtxt(file_path)
-   Y_vector = data[0]
-   predictions = data[1]
-   return Y_vector, predictions
+    data = np.loadtxt(file_path)
+    Y_vector = data[:, 0]
+    predictions = data[:, 1]
+    return Y_vector, predictions
+
 
 # Coefficient of determination (the closest to 1 the better) - methode de moindre carre
 def coef_determination(y, pred):
