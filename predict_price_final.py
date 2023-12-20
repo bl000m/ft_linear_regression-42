@@ -33,7 +33,6 @@ def predict_price(km, final_theta, mean_X, std_X, mean_Y, std_Y):
 
 def main():
     try:
-        # Example usage
         final_theta, mean_X, std_X, mean_Y, std_Y = load_model()
         km = float(input("Enter the km of the car: "))
         estimated_price = predict_price(km, final_theta, mean_X, std_X, mean_Y, std_Y)

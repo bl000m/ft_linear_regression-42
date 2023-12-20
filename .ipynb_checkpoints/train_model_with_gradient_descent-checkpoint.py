@@ -45,12 +45,12 @@ def gradient_descent(X, y, theta, learning_rate, n_iterations):
         cost_history[i] = cost_function(X, y, theta)
     return theta, cost_history
 
-# Coefficient of determination (the closest to 1 the better) - methode de moindre carre
-def coef_determination(y, pred):
-    mean_y = np.mean(y)
-    u = ((y - pred)**2).sum()
-    v = ((y - mean_y)**2).sum()
-    return 1 - (u / v)
+# # Coefficient of determination (the closest to 1 the better) - methode de moindre carre
+# def coef_determination(y, pred):
+#     mean_y = np.mean(y)
+#     u = ((y - pred)**2).sum()
+#     v = ((y - mean_y)**2).sum()
+#     return 1 - (u / v)
 
 def plot_results(X_vector, Y_vector, predictions):
     plt.scatter(X_vector, Y_vector, c='g')
@@ -67,18 +67,18 @@ def plot_cost_history(cost_history):
     plt.title('Cost History')
     plt.show()
 
-# R-squared represents the proportion of the dependent variable's variance 
-# that is explained by the independent variable(s)
-def plot_coefficient_of_determination(r_squared):
-    labels = ['Explained Variance (R-squared)', 'Unexplained Variance']
-    values = [r_squared, 1 - r_squared]
-    colors = ['lightcoral', 'lightskyblue']
+# # R-squared represents the proportion of the dependent variable's variance 
+# # that is explained by the independent variable(s)
+# def plot_coefficient_of_determination(r_squared):
+#     labels = ['Explained Variance (R-squared)', 'Unexplained Variance']
+#     values = [r_squared, 1 - r_squared]
+#     colors = ['lightcoral', 'lightskyblue']
 
-    plt.bar(labels, values, color=colors)
-    plt.ylabel('Proportion')
-    plt.title('Coefficient of Determination (R-squared)')
-    plt.ylim(0, 1)  # Set y-axis limits to represent proportions
-    plt.show()
+#     plt.bar(labels, values, color=colors)
+#     plt.ylabel('Proportion')
+#     plt.title('Coefficient of Determination (R-squared)')
+#     plt.ylim(0, 1)  # Set y-axis limits to represent proportions
+#     plt.show()
     
 def load_data(file_name):
    dataset = []
@@ -140,15 +140,20 @@ def save_model(final_theta, mean_X, std_X, mean_Y, std_Y, file_name):
        file.write(f"{mean_Y}\n")
        file.write(f"{std_Y}\n")
 
+def save_predictions(Y_vector, predictions):
+    with open("predictions.txt", 'w') as file:
+        file.write(f"{vector}\n")
+        file.write(f"{predictions}\n")
+
 def main():
    try:
        dataset = load_data('data.csv')
        X_scaled, Y_scaled, theta, mean_X, std_X, mean_Y, std_Y, X_vector, Y_vector = preprocess_data(dataset)
        final_theta, cost_history, predictions = run_model(X_scaled, Y_scaled, theta, std_Y, mean_Y)
 
-        # Coefficient of determination
-       r_squared = coef_determination(Y_vector, predictions)
-       rounded_r_squared = round(r_squared, 4)
+       #  # Coefficient of determination
+       # r_squared = coef_determination(Y_vector, predictions)
+       # rounded_r_squared = round(r_squared, 4)
        
        # Plotting
        plot_results(X_vector, Y_vector, predictions)
@@ -158,6 +163,7 @@ def main():
        
        # Save theta + scaled var in txt to be retrieved by the predict program
        save_model(final_theta, mean_X, std_X, mean_Y, std_Y, 'linear_regression_model.txt')
+       save_predictions(Y_vector, predictions)
 
    except FileNotFoundError:
        print("Error: The file 'data.csv' was not found.")
