@@ -24,6 +24,11 @@ def predict_price(km, final_theta, mean_X, std_X, mean_Y, std_Y):
     
     # Rescale the predicted price to the original scale, extract scalar value, and round it
     estimated_price = round(np.squeeze(price) * std_Y + mean_Y)
+
+    # Handle negative estimated price
+    if estimated_price < 0:
+        print("The estimated price is less than nothing!")
+
     return estimated_price
 
 def main():
@@ -32,7 +37,8 @@ def main():
         final_theta, mean_X, std_X, mean_Y, std_Y = load_model()
         km = float(input("Enter the km of the car: "))
         estimated_price = predict_price(km, final_theta, mean_X, std_X, mean_Y, std_Y)
-        print(f"Estimated price for {km} km: {estimated_price}")
+        if estimated_price >= 0:
+            print(f"Estimated price for {int(km)} km: {estimated_price}")
     except ValueError as ve:
         print(ve)
 

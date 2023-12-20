@@ -45,7 +45,7 @@ def gradient_descent(X, y, theta, learning_rate, n_iterations):
         cost_history[i] = cost_function(X, y, theta)
     return theta, cost_history
 
-# Coefficient of determination (the closest to 1 the better our) - methode de moindre carre
+# Coefficient of determination (the closest to 1 the better) - methode de moindre carre
 def coef_determination(y, pred):
     mean_y = np.mean(y)
     u = ((y - pred)**2).sum()
@@ -80,74 +80,89 @@ def plot_coefficient_of_determination(r_squared):
     plt.ylim(0, 1)  # Set y-axis limits to represent proportions
     plt.show()
     
+def load_data(file_name):
+   dataset = []
+   with open(file_name, 'r') as file:
+       reader = csv.reader(file)
+       header = next(reader)
+       if not header:
+           raise ValueError("Error: The CSV file is empty.")
+       
+       for row in reader:
+           if not row:
+               raise ValueError("Error: The CSV file contains empty rows.")
+           
+           # Ensure the row contains valid numbers
+           try:
+               dataset.append([float(row[0]), float(row[1])])
+           except ValueError:
+               raise ValueError("Error: The CSV file contains non-numeric values.")
+
+   if not dataset:
+       raise ValueError("Error: No valid data found in the CSV file.")
+
+   return dataset
+
+def preprocess_data(dataset):
+   data_array = np.array(dataset)
+
+   X_vector = data_array[:, 0]
+   Ones_vector = np.ones(X_vector.shape)
+   X_matrix = np.column_stack((X_vector, Ones_vector))
+   Y_vector = data_array[:, 1]
+   Y_vector = Y_vector.reshape(Y_vector.shape[0], 1)
+
+   # Feature scaling
+   X_scaled, Y_scaled, mean_X, std_X, mean_Y, std_Y = feature_scaling(X_matrix, Y_vector)
+
+   # Initialize random theta
+   theta = np.random.randn(2, 1)
+
+   return X_scaled, Y_scaled, theta, mean_X, std_X, mean_Y, std_Y, X_vector, Y_vector
+
+def run_model(X_scaled, Y_scaled, theta, std_Y, mean_Y):
+ # Run gradient descent
+ final_theta, cost_history = gradient_descent(X_scaled, Y_scaled, theta, learning_rate=0.001, n_iterations=10000)
+
+ # Make predictions
+ predictions_scaled = model(X_scaled, final_theta)
+ predictions = predictions_scaled * std_Y + mean_Y
+
+ return final_theta, cost_history, predictions
+
+
+def save_model(final_theta, mean_X, std_X, mean_Y, std_Y, file_name):
+   with open(file_name, 'w') as file:
+       for val in final_theta:
+           file.write(f"{val[0]}\n")
+       file.write(f"{mean_X[0]}\n")
+       file.write(f"{std_X[0]}\n")
+       file.write(f"{mean_Y}\n")
+       file.write(f"{std_Y}\n")
+
 def main():
-    try:
-        # Load the dataset
-        dataset = []
-        with open('data.csv', 'r') as file:
-            reader = csv.reader(file)
-            header = next(reader)
-            if not header:
-                raise ValueError("Error: The CSV file is empty.")
-            
-            for row in reader:
-                if not row:
-                    raise ValueError("Error: The CSV file contains empty rows.")
-                
-                # Ensure the row contains valid numbers
-                try:
-                    dataset.append([float(row[0]), float(row[1])])
-                except ValueError:
-                    raise ValueError("Error: The CSV file contains non-numeric values.")
-
-        if not dataset:
-            raise ValueError("Error: No valid data found in the CSV file.")
-
-        data_array = np.array(dataset)
-
-        X_vector = data_array[:, 0]
-        Ones_vector = np.ones(X_vector.shape)
-        X_matrix = np.column_stack((X_vector, Ones_vector))
-        Y_vector = data_array[:, 1]
-        Y_vector = Y_vector.reshape(Y_vector.shape[0], 1)
-
-        # Feature scaling
-        X_scaled, Y_scaled, mean_X, std_X, mean_Y, std_Y = feature_scaling(X_matrix, Y_vector)
-
-        # Initialize random theta
-        theta = np.random.randn(2, 1)
-
-        # Run gradient descent
-        final_theta, cost_history = gradient_descent(X_scaled, Y_scaled, theta, learning_rate=0.001, n_iterations=10000)
-
-        # Make predictions
-        predictions_scaled = model(X_scaled, final_theta)
-        predictions = predictions_scaled * std_Y + mean_Y
+   try:
+       dataset = load_data('data.csv')
+       X_scaled, Y_scaled, theta, mean_X, std_X, mean_Y, std_Y, X_vector, Y_vector = preprocess_data(dataset)
+       final_theta, cost_history, predictions = run_model(X_scaled, Y_scaled, theta, std_Y, mean_Y)
 
         # Coefficient of determination
-        r_squared = coef_determination(Y_vector, predictions)
-        rounded_r_squared = round(r_squared, 4)
-        print(f"Coefficient of determination: {rounded_r_squared}")
-        
-        # Plotting
-        plot_results(X_vector, Y_vector, predictions)
-        plot_cost_history(cost_history)
-        plot_coefficient_of_determination(rounded_r_squared)
-        
+       r_squared = coef_determination(Y_vector, predictions)
+       rounded_r_squared = round(r_squared, 4)
+       
+       # Plotting
+       plot_results(X_vector, Y_vector, predictions)
+       plot_cost_history(cost_history)
+       plot_coefficient_of_determination(rounded_r_squared)
+       print(f"Coefficient of determination: {rounded_r_squared}")
+       
+       # Save theta + scaled var in txt to be retrieved by the predict program
+       save_model(final_theta, mean_X, std_X, mean_Y, std_Y, 'linear_regression_model.txt')
 
-        # Save the model
-        with open('linear_regression_model.txt', 'w') as file:
-            for val in final_theta:
-                file.write(f"{val[0]}\n")
-            file.write(f"{mean_X[0]}\n")
-            file.write(f"{std_X[0]}\n")
-            file.write(f"{mean_Y}\n")
-            file.write(f"{std_Y}\n")
-
-    except FileNotFoundError:
-        print("Error: The file 'data.csv' was not found.")
-    except ValueError as ve:
-        print(f"Error: {ve}")
+   except FileNotFoundError:
+       print("Error: The file 'data.csv' was not found.")
+   except ValueError as ve:
+       print(f"Error: {ve}")
 
 if __name__ == "__main__":
     main()
